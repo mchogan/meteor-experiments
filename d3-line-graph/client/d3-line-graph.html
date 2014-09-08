@@ -5,8 +5,18 @@
 <body>
   <h1>Welcome to Meteor!</h1>
 
-  {{> hello}}
+  {{> input}}
 </body>
+
+<template name="input">
+  <h2>Let's take a look at the database</h2>
+  <table>
+    <tr><th>City</th><th>Date</th><th>Temperature</th></tr>
+    {{#each points}}
+    <tr><td>{{series}}</td><td>{{timestamp.toLocaleDateString}}</td><td>{{temperature}}</td></tr>
+    {{/each}}
+  </table>
+</template>
 
 <template name="hello">
   <button>Click Me</button>

@@ -32,9 +32,11 @@ I add the environment variable `NODE_OPTIONS='--debug-brk'` when I'm using `node
 I swapped the functions of the `control` and `command` keys so that, for example, I can use `command` + `c` as copy on both Mac OS and Ubuntu. Prior to this swap, switching back and forth between Mac OS and my Ubuntu virtual machine was driving me crazy. Here are the changes I made based on this [Stackoverflow tutorial](http://askubuntu.com/a/317898).
 
 Launch gEdit create a file named .Xmodmap in the home directory:
-`gedit ~/.Xmodmap`
+    
+    gedit ~/.Xmodmap
 
 Paste the following into .Xmodmap
+
     clear control
     clear mod4
     
@@ -50,9 +52,11 @@ Paste the following into .Xmodmap
     add mod4 = Super_L
 
 Make .Xmodmap executable
+
     chmod +x .Xmodmap
 
 Add the following to Ubuntu's Startup Applications, taking care to replace `YOURUSERNAME` with your actual user name
+
     /usr/bin/xmodmap /home/YOURUSERNAME/.Xmodmap
 
 Restart Ubuntu and all of the Mac OS keyboard shortcuts you're used to using for copy, paste, save, undo, and redo will work consistently within your virtual machine.

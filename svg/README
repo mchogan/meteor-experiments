@@ -1,0 +1,3 @@
+Here are some basic examples for working with SVG.
+* Render an SVG circle for each circle in MongoDB
+* Repeatedly render an SVG circle specified in a Template Helper based upon a `timesToRepeat` value passed to that Helper

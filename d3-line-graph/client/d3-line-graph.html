@@ -6,16 +6,28 @@
   <h1>Welcome to Meteor!</h1>
 
   {{> input}}
+  {{> output}}
 </body>
 
 <template name="input">
-  <h2>Let's take a look at the database</h2>
-  <table>
+  <h2>Let's look inside the database</h2>
+    <pre><code text="javascript">
+    data = {{pointsAsJSON}};
+    </code></pre>
+  <h2>Now let's see the data as a table</h2>
+  <table class="table table-hover table-condensed">
     <tr><th>City</th><th>Date</th><th>Temperature</th></tr>
+    <tbody>
     {{#each points}}
-    <tr><td>{{series}}</td><td>{{timestamp.toLocaleDateString}}</td><td>{{temperature}}</td></tr>
+    <tr><td>{{series}}</td><td>{{timestamp.toLocaleDateString}}</td><td>{{temperature}}&#8457;</td></tr>
     {{/each}}
+    </tbody>
   </table>
+</template>
+
+<template name="output">
+  <h2>Finally, let's see the data graphically</h2>
+  <svg id="chart" width="586px" height="331px"></svg>
 </template>
 
 <template name="hello">

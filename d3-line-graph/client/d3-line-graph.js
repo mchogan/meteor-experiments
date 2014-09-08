@@ -2,8 +2,12 @@
 Session.setDefault("counter", 0);
 
 Template.input.helpers({
-  points: function() {
+  points: function () {
     return Points.find({});
+  },
+  pointsAsJSON: function () {
+    var data = Points.find();
+    return JSON.stringify(data.fetch(), undefined, 2);
   }
 });
 

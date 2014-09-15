@@ -1,0 +1,1 @@
+A simple starter app for Meteor.js. I like this initial organization better than the defaults initialized by `meteor create APPNAME` because this structure is convenient for sharing code on [Meteorpad](http://meteorpad.com).

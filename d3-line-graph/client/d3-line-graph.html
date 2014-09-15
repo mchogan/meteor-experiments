@@ -4,9 +4,7 @@
 
 <body>
   <h1>Welcome to Meteor!</h1>
-
-  {{> input}}
-  {{> output}}
+  {{> chart}}
 </body>
 
 <template name="input">
@@ -19,15 +17,18 @@
     <tr><th>City</th><th>Date</th><th>Temperature</th></tr>
     <tbody>
     {{#each points}}
-    <tr><td>{{series}}</td><td>{{timestamp.toLocaleDateString}}</td><td>{{temperature}}&#8457;</td></tr>
+      {{#each values}}
+      <tr><td>{{../series}}</td><td>{{timestamp.toLocaleDateString}}</td><td>{{temperature}}&#8457;</td></tr>
+      {{/each}}
     {{/each}}
     </tbody>
   </table>
 </template>
 
-<template name="output">
+<template name="chart">
   <h2>Finally, let's see the data graphically</h2>
-  <svg id="chart" width="586px" height="331px"></svg>
+  <div id="chart_container">
+  </div>
 </template>
 
 <template name="hello">

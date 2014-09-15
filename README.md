@@ -57,6 +57,32 @@ Restart Ubuntu and all of the Mac OS keyboard shortcuts you're used to using for
 ## Development Process
 Some notes on my workflow with Meteor.js applications.
 
+### Application Directory Structure
+When I start a Meteor Experiment, I like to reorganize the application directory structure to match that used by [Meteorpad](http://meteorpad.com) so that I can more easily share Meteor Experiments in an interactive format that others can modify on Meteorpad and so that I can more easily distinguish between client, server, and common application components.
+
+`meteor create` generates an application directory with the following structure:
+
+    MyNewApp/
+      |- .meteor
+      |- MyNewApp.css
+      |- MyNewApp.html
+      |- MyNewApp.js
+
+As a relatively new Meteor.js user, I've found I'm less confused about what code is operating where with the following structure:
+
+    MyNewApp/
+      |- .meteor
+      |- client/
+         |- MyNewApp.css
+         |- MyNewApp.html
+         |- MyNewApp.js
+      |- server/
+         |- server.js
+      |- common.js
+      |- README.md
+
+While this is a more verbose directory structure, as a new user it helps me to keep my code organized and avoid accidentally exposing code on the client that I want to keep private on the server. I add the `README.md` file for GitHub.com. Sometimes, I also add a `LICENSE.txt` file, like I have at the top level of this Meteor Experiments repository.
+
 ### Debugging
 I've gotten in the habbit of using **node-inspector** and **robomongo** along with **Firefox** and **Chromium** developer tools to help debug my Meteor apps.
 

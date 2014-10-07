@@ -1,14 +1,7 @@
 /*globals d3, Deps, Meteor, Points, Session, Template */
 /*jslint nomen:true */
 
-// counter starts at 0
-Session.setDefault("counter", 0);
-
 Template.input.helpers({
-  points: function () {
-    'use strict';
-    return Points.find();
-  },
   pointsAsJSON: function () {
     'use strict';
     // get data
@@ -18,15 +11,12 @@ Template.input.helpers({
   }
 });
 
-
-Template.chart.helpers({
-  //
+Template.table_transformation.helpers({
+  points: function () {
+    'use strict';
+    return Points.find();
+  }
 });
-
-Template.chart.created = function () {
-  'use strict';
-  //
-};
 
 Template.chart.rendered = function () {
   'use strict';
@@ -43,9 +33,9 @@ Template.chart.rendered = function () {
     svg,
     chart;
   
-  margin = {top: 20, right: 80, bottom: 30, left: 50};
-  width = 586 - margin.left - margin.right;
-  height = 331 - margin.top - margin.bottom;
+  margin = {top: 20, right: 120, bottom: 30, left: 50};
+  width = 640 - margin.left - margin.right;
+  height = 480 - margin.top - margin.bottom;
 
   // x is a function that returns the scaled display value in the range
   // for a given data value in the domain
@@ -77,10 +67,12 @@ Template.chart.rendered = function () {
     .scale(y)
     .orient("left");
 
+  // define the function that will draw the line
+  // for each data series
   line = d3.svg.line()
-    .interpolate("step-after") // was "basis"
-    .x(function (d) { return x(d.timestamp); })
-    .y(function (d) { return y(d.temperature); });
+    .interpolate("linear") // the shape of the line
+    .x(function (d) { return x(d.timestamp); }) // timestamp as the x coordinate
+    .y(function (d) { return y(d.temperature); }); // temperature as the y coordinate
 
   svg = d3.select("#chart_container")
     .append("svg")
@@ -90,14 +82,14 @@ Template.chart.rendered = function () {
   
   chart = svg
     .append("g")
+      .attr("class", "chart-area")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   
   // add the x axis
   chart
     .append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-    .call(xAxis);
+      .attr("transform", "translate(0," + height + ")");
 
   // add the y axis
   chart
@@ -111,94 +103,140 @@ Template.chart.rendered = function () {
         .style("text-anchor", "end")
         .text("Temperature (ºF)");
   
+  function keyFunction(d) {
+    return d.series;
+  }
+  
   // everything below this point depends on data
   
   Deps.autorun(function () {
-    var data, chartData, minY, maxY, dataseries, series, seriesUpdate, seriesEnter, seriesExit;
-    
-    data = Points.find();
-    chartData = data.fetch();
+    var chartData, minX, maxX, minY, maxY, labels, lines, series, seriesEnter, seriesExit;
+    Meteor._debug("requesting chart data");
+    chartData = Points.find().fetch();
     //
     //  Expects input in an array similar to...
     //
     //  [
-    //    {name: "one", values: [{timestamp: 1, temperature: 1}, {timestamp: 2, temperature: 2}]},
-    //    {name: "two", values: [{timestamp: 1, temperature: 1}, {timestamp: 2, temperature: 2}]}
+    //    {series: "one", values: [{timestamp: 1, temperature: 1}, {timestamp: 2, temperature: 2}]},
+    //    {series: "two", values: [{timestamp: 1, temperature: 1}, {timestamp: 2, temperature: 2}]}
     //  ]
     //
     
-    Meteor._debug("chart data: " + JSON.stringify(chartData, undefined, 2));
-    
-    // build the data series and assign each series a color    
-    color.domain(chartData.map(function (d) { return d.name; }));
-    
-    // complete the definition of x by adding a domain to the time.scale() and .range
-    x.domain(d3.extent(chartData, function (d) { return d.timestamp; }));
-    
-    minY = d3.min(chartData, function (d) { return d.temperature; });
-    minY = d3.max(chartData, function (d) { return d.temperature; });
-    
-    // complete the definition of y by adding a domain to the scale.linear() and .range
-    y.domain([minY, maxY]);
-    
-    dataseries = color.domain().map(function (series) {
-      return {
-        name: series,
-        values: data.map(function (d) {
-          return {date: new Date(d.timestamp).valueOf(), temperature: +d.temperature};
+    // make sure we're getting the chart data we need
+    // if chartData exists, then draw the chart
+    if (chartData.length > 0) {
+      Meteor._debug("we have chart data");
+      //Meteor._debug("chart data: " + JSON.stringify(chartData, undefined, 2));
+
+      // assign each data series a color that will be used to plot it's line    
+      color.domain(chartData.map(function (d) { return d.series; }));
+
+      // complete the definition of x by adding a domain to the time.scale() and .range
+      minX = d3.min(chartData, function (d) { return d3.min(d.values, function (d) { return d.timestamp; }); });
+      maxX = d3.min(chartData, function (d) { return d3.max(d.values, function (d) { return d.timestamp; }); });
+      x.domain([minX, maxX]);
+
+      // complete the definition of y by adding a domain to the scale.linear() and .range
+      minY = d3.min(chartData, function (d) { return d3.min(d.values, function (d) { return d.temperature; }); });
+      maxY = d3.max(chartData, function (d) { return d3.max(d.values, function (d) { return d.temperature; }); });
+      Meteor._debug("y[" + minY + "," + maxY + "]");
+      y.domain([minY, maxY]);
+      
+      // scale the x axis and add to chart
+      svg.select(".x.axis")
+        .transition()
+        .duration(1000)
+        .call(xAxis);
+      
+      svg.select(".y.axis")
+        .transition()
+        .duration(1000)
+        .call(yAxis);
+            
+      // DATA JOIN
+      // Join new data with old elements, if any.
+      series = chart.selectAll(".series")
+        .data(chartData, keyFunction); // use the series' name as it's identifier
+      
+      Meteor._debug("data joined...");
+      
+      // ENTER
+      // Create new elements as needed.
+      // append any new series as a <g> element with a class="series"
+      seriesEnter = series.enter()
+        .append("g")
+        .attr("class", "series")
+        .attr("id", function (d) { return d.series; });
+
+      // append a <path class="line" ... > to each entering series
+      seriesEnter.append("path")
+        .attr("class", "line");
+
+      // append a <text class="label" ... > to each entering series
+      // in the transform below,
+      // the x function defined on line 48 returns the scaled value of the date
+      // the y function defined on line 51 returns the scaled value of the temperature
+      seriesEnter.append("text")
+        .attr("class", "label")
+        .attr("x", 3)
+        .attr("dy", ".35em");
+      
+      Meteor._debug("data has entered...");
+
+      // ENTER + UPDATE
+      // Appending to the enter selection expands the update selection to include
+      // entering elements; so, operations on the update selection after appending to
+      // the enter selection will apply to both entering and updating nodes.
+      
+      lines = series.selectAll("path")
+        .data(chartData, keyFunction);
+      
+      Meteor._debug("line data joined...");
+
+      
+      lines
+        .transition()
+        .duration(1000)
+        .attr("d", function (d) { return line(d.values); })
+        .style("stroke", function (d) { return color(d.series); });
+      
+      Meteor._debug("lines updated...");
+      
+      labels = series.selectAll("text")
+        .data(chartData, keyFunction);
+      
+      Meteor._debug("label data joined...");
+      
+      labels
+        .transition()
+        .duration(1000)
+        .attr("transform", function (d) {
+          var xCoord, yCoord, translation;
+          xCoord = d.values[d.values.length - 1].timestamp;
+          yCoord = d.values[d.values.length - 1].temperature;
+          translation = "translate(" + x(xCoord) + "," + y(yCoord) + ")";
+          return translation;
         })
-      };
-    });
-    
-    Meteor._debug("dataseries as JSON: " + JSON.stringify(dataseries, undefined, 2));
+        .text(function (d) { return d.series; });
+      
+      Meteor._debug("labels updated...");
 
-    series = chart.selectAll(".series");
-    
-    seriesUpdate = series.data(dataseries);
-    
-    // append any new series as a <g> element with a class="series"
-    seriesEnter = seriesUpdate.enter()
-          .append("g")
-          .attr("class", "series");
 
-    // append a <path class="line" ... > to each entering series
-    seriesEnter.append("path")
-          .attr("class", "line")
-          .attr("d", function (d) { return line(d.values); })
-          .style("stroke", function (d) { return color(d.name); });
-    
-    // append a <text class="label" ... > to each entering series
-    // in the transform below,
-    // the x function defined on line 48 returns the scaled value of the date
-    // the y function defined on line 51 returns the scaled value of the temperature
-    seriesEnter.append("text")
-          .attr("class", "label")
-          .datum(function (d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-          .attr("transform", function (d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
-          .attr("x", 3)
-          .attr("dy", ".35em")
-          .text(function (d) { return d.name; });
-    
-    seriesExit = seriesUpdate.exit();
-    
+      // EXIT
+      // Remove old elements as needed.
+      seriesExit = series.exit();
+      
+      seriesExit
+        .transition()
+        .duration(1000)
+        .remove();
+      
+      Meteor._debug("exiting series removed...");
+      
+      Meteor._debug("graph redrawn");
+      
+    } else {
+      Meteor._debug("chart data not yet available");
+    }
   });
 };
-
-Template.chart.destroyed = function () {
-  'use strict';
-};
-
-Template.hello.helpers({
-  counter: function () {
-    'use strict';
-    return Session.get("counter");
-  }
-});
-
-Template.hello.events({
-  'click button': function () {
-    'use strict';
-    // increment the counter when button is clicked
-    Session.set("counter", Session.get("counter") + 1);
-  }
-});

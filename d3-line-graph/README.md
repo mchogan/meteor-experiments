@@ -47,4 +47,5 @@ Databindings in d3 are confusing. The General Update Pattern tutorials Mike Bost
 
 For data structures like this, which are common in the MongoDB documents used by Meteor.js, it is necessary to bind data between SVG elements and JSON data at each layer of the data structure. For example, in the `Template.chart.rendered` helper I bind data first to get the names of the data series and then to get the time and temperature values.
 
-    
+## Line Shape
+d3 uses interpolation to determine line shape. For various examples see the [SVG Paths and d3js](https://www.dashingd3js.com/svg-paths-and-d3js) article at dashingd3js.com.

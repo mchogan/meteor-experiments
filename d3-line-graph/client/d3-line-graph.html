@@ -4,6 +4,8 @@
 
 <body>
   <h1>Welcome to Meteor!</h1>
+  {{> input}}
+  {{> table_transformation}}
   {{> chart}}
 </body>
 
@@ -12,6 +14,9 @@
     <pre><code text="javascript">
     data = {{pointsAsJSON}};
     </code></pre>
+</template>
+
+<template name="table_transformation">
   <h2>Now let's see the data as a table</h2>
   <table class="table table-hover table-condensed">
     <tr><th>City</th><th>Date</th><th>Temperature</th></tr>
@@ -29,9 +34,4 @@
   <h2>Finally, let's see the data graphically</h2>
   <div id="chart_container">
   </div>
-</template>
-
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
 </template>

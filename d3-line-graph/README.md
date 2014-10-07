@@ -1,5 +1,7 @@
 An experiment based on Mike Bostock's [Line Chart](http://bl.ocks.org/mbostock/3883245) and [Multi-series Line Chart](http://bl.ocks.org/mbostock/3884955) tutorials.
 
+[See this experiment on MeteorPad](http://meteorpad.com/pad/yCwF6aX2R5oG58Y4Y).
+
 ## Other Mike Bostock references:
 * [General Update Pattern, I](http://bl.ocks.org/mbostock/3808218)
 * [General Update Pattern, II](http://bl.ocks.org/mbostock/3808221), which introduces key funcions
@@ -45,7 +47,7 @@ Databindings in d3 are confusing. The General Update Pattern tutorials Mike Bost
         }
     ]
 
-For data structures like this, which are common in the MongoDB documents used by Meteor.js, it is necessary to bind data between SVG elements and JSON data at each layer of the data structure. For example, in the `Template.chart.rendered` helper I bind data first to get the names of the data series and then to get the time and temperature values.
+For data structures like this, which are common in the MongoDB documents used by Meteor.js, it is necessary to bind data between SVG elements and JSON data at each layer of the data structure. For example, in the `Template.chart.rendered` helper I bind data first to get the data series (line 159) and then to get the paths (line 192) and labels (line 206).
 
 ## Line Shape
-d3 uses interpolation to determine line shape. For various examples see the [SVG Paths and d3js](https://www.dashingd3js.com/svg-paths-and-d3js) article at dashingd3js.com.
+d3 uses interpolation to determine line shape. For various examples see the [SVG Paths and d3js](https://www.dashingd3js.com/svg-paths-and-d3js) article at dashingd3js.com. This example uses the "linear" interpolation.
